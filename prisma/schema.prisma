@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+//npx prisma db push
+//npx prisma generate 
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @unique
+  username     String?   @unique
+  email        String    @unique
+  photo       String?     
+  passwordHash String
+  githubId     String?  @unique
+  role         Boolean?
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  projects     Project[] @relation("UserProjects") 
+  claimIssues  ClaimIssue[] @relation("ClaimIssue")
+}
+
+model Project {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId        String   @db.ObjectId
+  title          String
+  description    String?
+  githubRepoId   String?
+  githubRepoUrl  String?
+  fundingGoal    Float?
+  currentFunding Float?   @default(0)
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  owner          User     @relation(fields: [ownerId], references: [id], name: "UserProjects")
+  issues         Issue[]  @relation("ProjectIssues")
+}
+
+model Issue {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId     String   @db.ObjectId
+  githubIssueId String?
+  title         String
+  description   String?
+  bountyAmount  Float?
+  status        String   @default("open")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], name: "ProjectIssues")
+}
+
+model ClaimIssue{
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   
+  walletAddress String
+  issueId       String   
+  owner         String  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [owner], references: [username], name: "ClaimIssue")
+}
+
