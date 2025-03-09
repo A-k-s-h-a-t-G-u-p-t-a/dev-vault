@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation"; // Import the useRouter hook
 import { client2 } from "@/lib/client";
 import {
   defineChain,
@@ -19,6 +20,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function VotingProposals() {
+  const router = useRouter(); // Initialize the router
+
   const contract = getContract({
     client: client2,
     chain: defineChain(11155111), // Sepolia Testnet
@@ -108,10 +111,20 @@ export default function VotingProposals() {
     setIsVoting(false);
   };
 
+  const handleCreateProposal = () => {
+    router.push("/voting/proposals"); // Redirects to /voting/proposals
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white p-4">
       <div className="max-w-4xl w-full">
         <h1 className="text-3xl font-bold mb-6 text-center">🗳️ Voting Proposals</h1>
+
+        <div className="text-center mb-4">
+          <Button onClick={handleCreateProposal} className="bg-blue-600">
+            ➕ Create Proposal
+          </Button>
+        </div>
 
         {isCounting ? (
           <p className="text-gray-400 text-center">Fetching proposal count...</p>
